@@ -1,0 +1,25 @@
+{
+    "name": "php-errors/php-errors",
+    "description": "Set error handler.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Koma",
+            "email": "komazhang@foxmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "psr/log": "~1.0"
+    },
+    "require-dev": {
+    	"monolog/monolog": "~1.22"
+    },
+    "suggest": {
+        "monolog/monolog": "Sends your logs to files, sockets, inboxes, databases and various web services"
+    },
+    "autoload": {
+        "psr-4": {"PHPErrors\\": "src"}
+    }
+}
