@@ -1,6 +1,6 @@
 {
     "name": "php-errors/php-errors",
-    "description": "Set error handler.",
+    "description": "重写PHP错误处理程序，捕获所有PHP运行时错误并支持通过设置日志器将错误日志记录到日志中。",
     "type": "library",
     "license": "MIT",
     "authors": [
