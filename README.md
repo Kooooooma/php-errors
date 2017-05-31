@@ -13,5 +13,14 @@ error_reporting = E_ALL & E_STRICT
 ```
 #### 上述设置中的 error_log 文件位置仅仅作为备用日志文件地址，当没有设置日志记录器时，日志默认会被填充到该位置（推荐设置日志记录器）。
 
+# install
+```bash
+{
+    "require": {
+        "php-errors/php-errors": "~1.0"
+    }
+}
+```
+
 # 使用
 请参考 tests 用例
