@@ -16,13 +16,15 @@ use Psr\Log\LogLevel;
 class PHPErrors
 {
     public $logger;
+    public static $reportLevel = E_ALL;
 
     public static function enable($errorReportLevel = E_ALL, $devMode = true)
     {
         if ($errorReportLevel != null) {
             error_reporting($errorReportLevel);
+            self::$reportLevel = $errorReportLevel;
         } else {
-            error_reporting(-1);
+            error_reporting(E_ALL);
         }
 
         if ($devMode) {
@@ -70,30 +72,44 @@ class PHPErrors
 
         if (!empty($error)) {
             $type = $error['type'];
-            $message = $this->formatMessage($error['message'], $error['file'], $error['line']);
 
-            return $this->log($type, $message);
+            if ($type & self::$reportLevel) {
+                $message = $this->formatMessage($error['message'], $error['file'], $error['line']);
+
+                return $this->log($type, $message);
+            }
         }
     }
 
     public function handleError($type, $message, $file, $line)
     {
-        $message = $this->formatMessage($message, $file, $line);
+        if ($type & self::$reportLevel) {
+            $message = $this->formatMessage($message, $file, $line);
 
-        return $this->log($type, $message);
+            return $this->log($type, $message);
+        }
     }
 
     public function handleException(\Throwable $exception)
     {
-        if ($exception instanceof \Error || $exception instanceof \ErrorException) {
-            $type = $exception instanceof \Error ? $exception->getCode() : $exception->getSeverity();
-            $message = $this->formatMessage(
-                $exception->getMessage(),
-                $exception->getFile(),
-                $exception->getLine()
-            );
+        //Error code 需要转换成 Exception 的错误级别
+        //这里把所有的 Error 都转换成 E_ERROR 级别异常, 用来做捕获
+        if ($exception instanceof \Error) {
+            $exception = new \ErrorException($exception->getMessage(), 0, E_ERROR, $exception->getFile(), $exception->getLine());
+        }
 
-            return $this->log($type, $message);
+        if ($exception instanceof \ErrorException) {
+            $type = $exception->getSeverity();
+
+            if ($type & self::$reportLevel) {
+                $message = $this->formatMessage(
+                    $exception->getMessage(),
+                    $exception->getFile(),
+                    $exception->getLine()
+                );
+
+                return $this->log($type, $message);
+            }
         }
     }
 
