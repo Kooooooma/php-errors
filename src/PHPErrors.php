@@ -98,12 +98,12 @@ class PHPErrors
             $exception = new \ErrorException($exception->getMessage(), 0, E_ERROR, $exception->getFile(), $exception->getLine());
         }
 
-        if ($exception instanceof \ErrorException) {
-            $type = $exception->getSeverity();
+        if ($exception instanceof \ErrorException || $exception instanceof \Exception) {
+            $type = $exception instanceof \ErrorException ? $exception->getSeverity() : E_ERROR;
 
             if ($type & self::$reportLevel) {
                 $message = $this->formatMessage(
-                    $exception->getMessage(),
+                    $exception->getTraceAsString(),
                     $exception->getFile(),
                     $exception->getLine()
                 );
