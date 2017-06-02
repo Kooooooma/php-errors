@@ -38,5 +38,5 @@ $logger->pushHandler(new \Monolog\Handler\StreamHandler(__DIR__."/test.log"));
 $errorHandler->setLogger($logger);
 ```
 
-# 要求    
-应用代码中对于应用异常处理需要通过 try/catch 代码块来捕获，否则异常会被 php-errors 捕获并记录到日志中。
+# 建议    
+应用代码中对于应用异常处理应通过 try/catch 代码块来捕获，否则异常会被 php-errors 捕获并记录到日志中。
