@@ -103,9 +103,10 @@ class PHPErrors
 
             if ($type & self::$reportLevel) {
                 $message = $this->formatMessage(
-                    $exception->getTraceAsString(),
+                    $exception->getMessage(),
                     $exception->getFile(),
-                    $exception->getLine()
+                    $exception->getLine(),
+                    $exception->getTraceAsString()
                 );
 
                 return $this->log($type, $message);
@@ -113,9 +114,13 @@ class PHPErrors
         }
     }
 
-    public function formatMessage($message, $file, $line)
+    public function formatMessage($message, $file, $line, $trace = '')
     {
-        return $message = "{$file}#{$line}: {$message}";
+        $message = "{$file}#{$line}: {$message}";
+        return <<<MSG
+$message
+$trace
+MSG;
     }
 
     public function getErrorLevel($type)
