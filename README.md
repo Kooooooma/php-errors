@@ -10,6 +10,9 @@ display_startup_errors = Off
 log_errors = On
 error_log = 错误日志记录位置（绝对路径，也可以设置为 syslog，将日志打印到系统日志中）
 error_reporting = E_ALL & E_STRICT
+
+//php-fpm 环境中还应该设置如下配置
+catch_workers_output = yes
 ```
 #### 上述设置中的 error_log 文件位置仅仅作为备用日志文件地址，当没有设置日志记录器时，日志默认会被填充到该位置（推荐设置日志记录器）。
 
