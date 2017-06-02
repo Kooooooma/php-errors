@@ -23,4 +23,10 @@ error_reporting = E_ALL & E_STRICT
 ```
 
 # 使用
-请参考 tests 用例
+```php
+$baseDir = dirname(__DIR__);
+
+require $baseDir.'/vendor/autoload.php';
+
+$errorHandler = \PHPErrors\PHPErrors::enable(E_ALL, true);
+```

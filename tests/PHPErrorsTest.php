@@ -3,7 +3,7 @@ $baseDir = dirname(__DIR__);
 
 require $baseDir.'/vendor/autoload.php';
 
-$errorHandler = \PHPErrors\PHPErrors::enable(E_ALL & ~E_ERROR, false);
+$errorHandler = \PHPErrors\PHPErrors::enable(E_ALL & ~E_WARNING, true);
 
 //$logger = new \Monolog\Logger("test");
 //$logger->pushHandler(new \Monolog\Handler\StreamHandler(__DIR__."/test.log"));
@@ -12,5 +12,15 @@ $errorHandler = \PHPErrors\PHPErrors::enable(E_ALL & ~E_ERROR, false);
 
 
 //test error
-echo $x; //E_NOTICE
-$fatal->error(); //E_ERROR
+$a = 1/0;
+echo @$x; //E_NOTICE
+@$fatal->error(); //E_ERROR
+//echo $y;
+
+//throw new \Exception("dfdsd");
+
+try {
+    throw new \Exception("dfdsd");
+} catch (\Exception $e) {
+
+}

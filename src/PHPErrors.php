@@ -16,28 +16,26 @@ use Psr\Log\LogLevel;
 class PHPErrors
 {
     public $logger;
-    public static $reportLevel = E_ALL;
+    public $displayErrors = false;
+    public static $errorReportLevel = E_ALL;
 
-    public static function enable($errorReportLevel = E_ALL, $devMode = true)
+    public function __construct($displayErrors = false)
+    {
+        $this->displayErrors = $displayErrors;
+    }
+
+    public static function enable($errorReportLevel = E_ALL, $displayErrors = false)
     {
         if ($errorReportLevel != null) {
             error_reporting($errorReportLevel);
-            self::$reportLevel = $errorReportLevel;
+            self::$errorReportLevel = $errorReportLevel;
         } else {
             error_reporting(E_ALL);
         }
 
-        if ($devMode) {
-            ini_set('display_errors', 1);
-            ini_set('display_startup_errors', 1);
-        } else {
-            ini_set('display_errors', 0);
-            ini_set('display_startup_errors', 0);
-        }
-
         ini_set('log_errors', 1);
 
-        $handler = new static();
+        $handler = new static($displayErrors);
         return $handler->register();
     }
 
@@ -55,10 +53,14 @@ class PHPErrors
         $level = $this->getErrorLevel($type);
 
         if ( $this->logger != null ) {
-            return $this->logger->log($level, $message);
+            $this->logger->log($level, $message);
+        } else {
+            error_log("{$level}: {$message}");
         }
 
-        error_log("{$level}: {$message}");
+        if ( $this->displayErrors ) {
+            print "{$level}: {$message}";
+        }
     }
 
     public function setLogger($logger)
@@ -73,35 +75,40 @@ class PHPErrors
         if (!empty($error)) {
             $type = $error['type'];
 
-            if ($type & self::$reportLevel) {
+            if ($type & self::$errorReportLevel) {
                 $message = $this->formatMessage($error['message'], $error['file'], $error['line']);
 
-                return $this->log($type, $message);
+                $this->log($type, $message);
             }
         }
     }
 
     public function handleError($type, $message, $file, $line)
     {
-        if ($type & self::$reportLevel) {
+        if ($type & self::$errorReportLevel) {
             $message = $this->formatMessage($message, $file, $line);
 
-            return $this->log($type, $message);
+            $this->log($type, $message);
         }
     }
 
     public function handleException(\Throwable $exception)
     {
-        //Error code 需要转换成 Exception 的错误级别
-        //这里把所有的 Error 都转换成 E_ERROR 级别异常, 用来做捕获
+        //把所有Error都当做成是致命的错误处理
         if ($exception instanceof \Error) {
-            $exception = new \ErrorException($exception->getMessage(), 0, E_ERROR, $exception->getFile(), $exception->getLine());
+            $exception = new \ErrorException(
+                $exception->getMessage(),
+                $exception->getCode(),
+                E_ERROR,
+                $exception->getFile(),
+                $exception->getLine()
+            );
         }
 
-        if ($exception instanceof \ErrorException || $exception instanceof \Exception) {
+        if ($exception instanceof \Exception) {
             $type = $exception instanceof \ErrorException ? $exception->getSeverity() : E_ERROR;
 
-            if ($type & self::$reportLevel) {
+            if ($type & self::$errorReportLevel) {
                 $message = $this->formatMessage(
                     $exception->getMessage(),
                     $exception->getFile(),
@@ -109,7 +116,7 @@ class PHPErrors
                     $exception->getTraceAsString()
                 );
 
-                return $this->log($type, $message);
+                $this->log($type, $message);
             }
         }
     }
